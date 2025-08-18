@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 import app from "./app.js";
+import connectDB from "./db/index.js";
 
 dotenv.config({
     path: "./.env",
@@ -12,6 +13,13 @@ app.get("/", (req, res) => {
     res.send("Home page");
 })
 
-app.listen(port, () => {
-    console.log(`Server is runnning on http://localhost:${port}`);
-});
+connectDB()
+    .then(() => {
+        app.listen(port, () => {
+            console.log(`Server is runnning on http://localhost:${port}`);
+        });
+    })
+    .catch((error) => {
+        console.error("MongoDB Connection error", error);
+        process.exit(1);
+    })
