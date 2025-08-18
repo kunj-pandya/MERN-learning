@@ -20,6 +20,22 @@ export { ApiResponse };
 
 ```
 
+### Example From code
+
+
+```javascript
+// controllers/helthCheck.Controller.js
+const healthCheck = asyncHandler(async (req, res) => {
+    res.status(200).json(
+        new ApiResponse(200, { message: "Server is running" })
+    )
+});
+
+export { healthCheck };
+
+```
+
+
 
 ### Example
 
