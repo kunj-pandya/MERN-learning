@@ -18,8 +18,14 @@ app.use(
     })
 );
 
+// import the routes
+
+import healthCheckRouter from "./routes/healthCheck.routes.js";
+
+app.use("/api/v1/healthcheck", healthCheckRouter);
+
 app.get("/", (req, res) => {
-    res.send("hello from home page"); s
+    res.send("hello from home page"); 
 });
 
 app.get("/insta", (req, res) => {
