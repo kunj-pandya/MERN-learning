@@ -1,3 +1,11 @@
+#NOTES
+
+## Table of Contents
+- [API Response & Error Handling](#-api-response--error-handling-notes)
+- [Constants](#-constants-file-notes)
+- [password handling in user model](#-password-handling-in-user-model)
+- [asynchandler & helthcheck](#difference-between-asynchandler-and-healthcheck)
+
 # 📌 API Response & Error Handling Notes
 
 ##  1. `ApiResponse` – Success Response Format
@@ -220,3 +228,87 @@ userSchema.methods.isPasswordCorrect = async function (password) {
 - isPasswordCorrect → Checks if a given plain text password matches the stored hashed password.
 - bcrypt.compare(plainPassword, hashedPassword) → Returns true if they match, false otherwise.
 - Used during login to validate credentials.
+
+
+
+# Difference Between `asyncHandler` and `healthCheck`
+
+## 1. `asyncHandler`
+
+### 🔹 What it is
+`asyncHandler` is a **utility function** that helps handle errors in asynchronous route handlers.  
+Normally, in Express, when you use `async/await` inside routes, you need `try/catch` to catch errors.  
+`asyncHandler` removes the need for repetitive `try/catch` blocks.
+
+### 🔹 How it works
+It takes a **request handler (controller function)** as input and returns a new function that ensures any rejected Promise (error) is passed to Express's `next()` function.
+
+### 🔹 Example
+Without `asyncHandler`:
+```js
+app.get("/users", async (req, res, next) => {
+    try {
+        const users = await User.find();
+        res.json(users);
+    } catch (error) {
+        next(error); // manually forwarding error
+    }
+});
+```
+
+ With asyncHandler:
+```javascript
+const asyncHandler = (requestHandler) => {
+    return (req, res, next) => {
+        Promise.resolve(requestHandler(req, res, next)).catch(next);
+    };
+};
+
+app.get("/users", asyncHandler(async (req, res) => {
+    const users = await User.find();
+    res.json(users);
+}));
+
+// ✅ Cleaner code, no repetitive try/catch.
+```
+
+## 2. `healthCheck`
+
+-healthCheck is a controller function (actual API endpoint logic).
+- It is not a helper — it is the real functionality that responds when a client checks if the server is running.
+
+### 🔹 Example
+```javascript
+const healthCheck = asyncHandler(async (req, res) => {
+    res.status(200).json({ message: "Server is running" });
+});
+```
+
+-This endpoint can be mounted in Express:
+
+```javascript
+app.get("/health", healthCheck);
+```
+
+When you visit http://localhost:5000/health, you’ll get:
+```json
+{
+  "message": "Server is running"
+}
+```
+
+## 3. Key Differences
+| Feature | `asyncHandler`                         | `healthCheck`                          |
+| ------- | -------------------------------------- | -------------------------------------- |
+| Type    | Utility / Wrapper function             | Controller (route handler)             |
+| Purpose | Handles errors in async functions      | Provides API response (business logic) |
+| Returns | A function that wraps another function | JSON response (`{ message: ... }`)     |
+| Usage   | Wraps controllers to avoid try/catch   | Used as an actual endpoint             |
+| Example | `asyncHandler(fn)`                     | `app.get("/health", healthCheck)`      |
+
+
+### ✅ Summary
+
+- asyncHandler: Helper to catch async errors.
+- healthCheck: Real route handler (endpoint) for checking server health.
+- They are different but used together — healthCheck is wrapped inside asyncHandler for safety.
