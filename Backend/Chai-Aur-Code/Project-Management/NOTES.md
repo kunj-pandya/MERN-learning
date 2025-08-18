@@ -256,7 +256,7 @@ app.get("/users", async (req, res, next) => {
 });
 ```
 
- With asyncHandler:
+With asyncHandler:
 ```javascript
 const asyncHandler = (requestHandler) => {
     return (req, res, next) => {
@@ -296,6 +296,12 @@ When you visit http://localhost:5000/health, you’ll get:
   "message": "Server is running"
 }
 ```
+
+
+## 🛠️ How They Work Together
+
+- healthCheck is your actual endpoint logic.
+- You wrap it inside asyncHandler so if something goes wrong (e.g., database error), Express gets the error automatically.
 
 ## 3. Key Differences
 | Feature | `asyncHandler`                         | `healthCheck`                          |
