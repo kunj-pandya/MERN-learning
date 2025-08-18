@@ -179,9 +179,44 @@ export const TaskStatusEnum = {
     IN_PROGRESS: "in_progress",    
     DONE: "done"                  
 };
-
+```
 
 // AvailableTaskStatues contains all possible task statuses as an `array`.
 // Useful for validations, UI filters, and status updates.
 export const AvailableTaskStatues = Object.values(TaskStatusEnum);
 
+
+# 🔐 Password Handling in User Model
+
+## 1. Password Hashing Before Save
+
+```javascript
+userSchema.pre("save", async function (next) {
+    if (!this.isModified("password")) return next();
+
+    this.password = await bcrypt.hash(this.password, 10);
+    next();
+});
+```
+
+### Explanation
+
+- `!this.isModified("password")` → Prevents re-hashing if the password field was not changed (e.g., when updating      profile info).
+- pre("save") → This is a Mongoose middleware that runs before a document is saved to MongoDB.
+- bcrypt.hash(password, 10) → Hashes the plain text password with a salt factor of 10.
+- The hashed password replaces the plain one before storing in the database.
+- Ensures passwords are never saved in plain text.
+
+## 2. Password Verification Method
+
+```javascript
+userSchema.methods.isPasswordCorrect = async function (password) {
+    return await bcrypt.compare(password, this.password);
+}
+```
+
+### Explanation 
+- userSchema.methods → Lets us add custom methods to all user documents.
+- isPasswordCorrect → Checks if a given plain text password matches the stored hashed password.
+- bcrypt.compare(plainPassword, hashedPassword) → Returns true if they match, false otherwise.
+- Used during login to validate credentials.
