@@ -20,6 +20,13 @@ app.use(
     })
 );
 
+
+app.get("/test", (req, res) => {
+    console.log("Headers:", req.headers);
+    console.log("Cookies:", req.cookies);
+    res.send("Check your server console");
+});
+
 // import the routes
 
 import healthCheckRouter from "./routes/healthCheck.routes.js";
@@ -30,10 +37,6 @@ app.use("/api/v1/auth", authRouter);
 
 app.get("/", (req, res) => {
     res.send("hello from home page");
-});
-
-app.get("/insta", (req, res) => {
-    res.send("instagram page"); s
 });
 
 export default app;
