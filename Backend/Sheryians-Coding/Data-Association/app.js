@@ -51,18 +51,34 @@ app.post("/login", async (req, res) => {
     if (!user) return res.status(500).send("Somthing went wrong");
 
     bcrypt.compare(password, user.password, function (err, result) {
-        if (result) res.status(200).send("you can login")
+        if (result) {
+            let token = jwt.sign({ email: email, userid: user._id }, "shhhh");
+            res.cookie("token", token);
+            res.status(200).send("you can login");
+        }
         else res.status(500).send("email or password is worng");
     })
 
 });
 
+// app.get("/profile", isLoggedIn, (req, res) => {
+//     console.log("user data", req.user);
+// })
 
 app.get("/logout", (req, res) => {
     res.cookie("token", "");
     res.redirect("/login");
 });
 
+function isLoggedIn(req, res, next) {
+    if (req.cookies.token === "") res.send("You must be logged in");
+    else {
+        let data = jwt.verify(req.cookies.token, "shhhh");
+        req.user = data;
+        next();
+    }
+
+}
 
 app.listen(3000, () => {
     console.log(`app is listing on  http://localhost:3000`)
