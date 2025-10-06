@@ -17,8 +17,18 @@ let userId = 112233;
 // userId = "kunj" //can't do 
 
 // boolean
-let isLoggedIn : boolean = false;
+let isLoggedIn: boolean = false;
 
 
+
+//any 
+// TypeScript also has a special type, any, that you can use whenever you don’t want a particular value to cause typechecking errors.
+let hero;
+
+function getHero() {
+    return true;
+}
+
+hero = getHero();
 
 export { }
